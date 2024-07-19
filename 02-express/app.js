@@ -1,8 +1,13 @@
 const express = require('express');
 const Joi = require('@hapi/joi');
+const morgan = require('morgan');
 const app = express();
 
 app.use(express.json);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+app.use(morgan('tiny'));
 
 const usuarios = [
   { id: 1, nombre: 'Hector' },
