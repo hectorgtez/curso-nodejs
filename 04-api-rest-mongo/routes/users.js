@@ -1,6 +1,9 @@
 const express = require('express');
-const User = require('../models/user_model');
+const bcrypt = require('bcrypt');
 const Joi = require('@hapi/joi');
+
+const User = require('../models/user_model');
+
 const router = express.Router();
 
 const schema = Joi.object({
@@ -34,6 +37,16 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   let body = req.body;
 
+  User.findOne({ email: body.email }, (err, user) => {
+    if (err) {
+      return res.status(400).json({ error: 'Server error...' });
+    }
+    
+    if (user) {
+      res.status(400).json({ msg: 'El usuario ya existe...' });
+    }
+  });
+
   const { error, value } = schema.validate({
     name: body.name,
     email: body.email,
@@ -44,7 +57,10 @@ router.post('/', (req, res) => {
   
     result
       .then( user => {
-        res.json({ value: user });
+        res.json({
+          name: user.name,
+          email: user.email
+        });
       })
       .catch( err => {
         res.status(400).json({ error: err });
@@ -66,7 +82,10 @@ router.put('/:email', (req, res) => {
   
     result
       .then( user => {
-        res.json({ value: user });
+        res.json({
+          name: user.name,
+          email: user.email
+        });
       })
       .catch( err => {
         res.status(400).json({ error: err });
@@ -82,7 +101,10 @@ router.delete('/:email', (req, res) => {
 
   result
     .then( user => {
-      res.json({ value: user });
+      res.json({
+        name: user.name,
+        email: user.email
+      });
     })
     .catch( err => {
       res.status(400).json({ error: err });
@@ -92,14 +114,15 @@ router.delete('/:email', (req, res) => {
 // Functions
 
 async function listActiveUsers() {
-  return await User.find({ 'state': true });
+  return await User.find({ 'state': true })
+    .select({ nombre: 1, email: 1 });
 }
 
 async function createUser(body) {
   let user = new User({
     email: body.email,
     name: body.name,
-    password: body.password,
+    password: bcrypt.hashSync(body.password, 10),
   });
 
   return await user.save();
