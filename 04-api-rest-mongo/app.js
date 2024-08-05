@@ -1,12 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
+const config = require('config');
 const users = require('./routes/users');
 const courses = require('./routes/courses');
 const auth = require('./routes/auth');
 
 // Connect to database
-mongoose.connect('mongodb://localhost:27017/demo')
+mongoose.connect(config.get('configDB.HOST'))
   .then( () => console.log('Conectado a MongoDB!') )
   .catch( (err) => console.log('No se pudo conectar con MongoDB', err) );
 

@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const Joi = require('@hapi/joi');
 
 const User = require('../models/user_model');
+const verifyToken = require('../middlewares/auth');
 
 const router = express.Router();
 
@@ -20,9 +21,9 @@ const schema = Joi.object({
       minDomainSegments: 2,
       tlds: { allow: ['com', 'net'] }
     })
-})
+});
 
-router.get('/', (req, res) => {
+router.get('/', verifyToken, (req, res) => {
   let result = listActiveUsers();
 
   result
@@ -70,7 +71,7 @@ router.post('/', (req, res) => {
     }
 });
 
-router.put('/:email', (req, res) => {
+router.put('/:email', verifyToken, (req, res) => {
   let body = req.body;
 
   const { error, value } = schema.validate({
@@ -96,7 +97,7 @@ router.put('/:email', (req, res) => {
 
 });
 
-router.delete('/:email', (req, res) => {
+router.delete('/:email', verifyToken, (req, res) => {
   let result = deactivateUser(req.params.email);
 
   result

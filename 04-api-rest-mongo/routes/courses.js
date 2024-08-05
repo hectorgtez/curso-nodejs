@@ -2,7 +2,9 @@ const express = require('express');
 const Course = require('../models/course_model');
 const router = express.Router();
 
-router.get('/', (req, res) => {
+const verifyToken = require('../middlewares/auth');
+
+router.get('/', verifyToken, (req, res) => {
   let result = listActiveCourses();
 
   result
@@ -10,7 +12,7 @@ router.get('/', (req, res) => {
     .catch( error => res.status(400).json(error) );
 });
 
-router.post('/', (req, res) => {
+router.post('/', verifyToken, (req, res) => {
   let result = createCourse(req.body);
 
   result
@@ -18,7 +20,7 @@ router.post('/', (req, res) => {
     .catch( error => res.status(400).json(error) );
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', verifyToken, (req, res) => {
   let result = updateCourse(req.params.id, req.body);
 
   result
@@ -26,7 +28,7 @@ router.put('/:id', (req, res) => {
     .catch( error => res.status(400).json(error) );
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', verifyToken, (req, res) => {
   let result = deactivateCourse(req.params.id);
 
   result
